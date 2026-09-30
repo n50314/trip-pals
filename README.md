@@ -2,7 +2,7 @@
 
 旅行行程與代購管理網站，把每日安排、景點收藏、地圖路線、代購進度與備忘錄集中在同一個介面，方便旅伴一起整理旅程。
 
-[線上展示](https://trip-pals-tw.snappy-mite-7937.chatgpt.site) · [架構說明](docs/architecture.md)
+[架構說明](docs/architecture.md) · [畫面展示](#畫面展示) · [本機啟動](#本機啟動)
 
 ## 畫面展示
 
