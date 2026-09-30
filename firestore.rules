@@ -1,0 +1,44 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /trips/{tripId} {
+      function hasSecretId() {
+        return tripId.matches('^[A-Za-z0-9_-]{40,80}$');
+      }
+
+      function hasValidShape() {
+        return request.resource.data.keys().hasOnly(['trip', 'updatedAt'])
+          && request.resource.data.trip is map
+          && request.resource.data.updatedAt is timestamp;
+      }
+
+      allow get: if hasSecretId();
+      allow create, update: if hasSecretId() && hasValidShape();
+      allow delete: if hasSecretId();
+      allow list: if false;
+    }
+
+    match /shortLinks/{code} {
+      function hasValidCode() {
+        return code.matches('^[A-Za-z0-9_-]{10,20}$');
+      }
+
+      function hasValidMapping() {
+        return request.resource.data.keys().hasOnly(['shareId', 'createdAt'])
+          && request.resource.data.shareId is string
+          && request.resource.data.shareId.matches('^[A-Za-z0-9_-]{40,80}$')
+          && request.resource.data.createdAt is timestamp;
+      }
+
+      allow get: if hasValidCode();
+      allow create: if hasValidCode() && hasValidMapping();
+      allow update, delete, list: if false;
+    }
+
+    match /users/{userId}/trips/{tripId} {
+      allow read, create, update, delete:
+        if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

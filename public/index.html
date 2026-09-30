@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6f1e8" />
+    <meta
+      name="description"
+      content="和朋友一起整理旅行行程、景點與代購清單。"
+    />
+    <title>旅伴 Trip Pals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/responsive.css" />
+  </head>
+  <body>
+    <div class="grain"></div>
+    <header class="topbar">
+      <button class="brand brand-button" id="homeButton" type="button" aria-label="回到旅程首頁">
+        <span class="brand-mark">旅</span>
+        <span>TRIP PALS</span>
+      </button>
+      <div class="top-actions">
+        <button class="button button-outline auth-button" id="loginButton" type="button" aria-label="Google 登入">
+          <span class="google-dot" aria-hidden="true">G</span>
+          <span>Google 登入</span>
+        </button>
+        <div class="user-badge hidden" id="userBadge">
+          <img id="userPhoto" alt="" />
+          <span id="userName"></span>
+          <button id="logoutButton" type="button">登出</button>
+        </div>
+        <div class="trip-actions hidden" id="tripActions">
+          <span class="save-status" id="saveStatus">已自動儲存</span>
+          <button class="button button-dark" id="shareButton" type="button" aria-label="分享行程">
+            <span>分享行程</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="trips-home" id="tripsHome">
+        <div class="home-hero">
+          <p class="eyebrow">YOUR TRIPS</p>
+          <h1>下一趟，去哪裡？</h1>
+          <p>每趟旅程各自保存、各自分享。分享連結只會看到指定的那一趟。</p>
+          <div class="storage-mode" id="storageMode">未登入・資料保存在這個瀏覽器</div>
+        </div>
+
+        <form class="new-trip-form card" id="newTripForm">
+          <div>
+            <p class="kicker">START A NEW ESCAPE</p>
+            <h2>新增旅程</h2>
+          </div>
+          <div class="field">
+            <label for="newTripTitle">旅程名稱</label>
+            <input id="newTripTitle" required placeholder="例如：東京賞櫻" />
+          </div>
+          <div class="field">
+            <label for="newTripDestination">目的地</label>
+            <input id="newTripDestination" placeholder="例如：日本・東京" />
+          </div>
+          <button class="button button-coral" type="submit">建立旅程</button>
+        </form>
+
+        <div class="trip-library-heading">
+          <div>
+            <p class="kicker">MY JOURNEYS</p>
+            <h2>我的旅程</h2>
+          </div>
+          <span id="tripCount"></span>
+        </div>
+        <div class="trip-cards" id="tripCards"></div>
+      </section>
+
+      <div class="trip-app hidden" id="tripApp">
+      <section class="hero">
+        <div class="eyebrow">OUR NEXT ESCAPE</div>
+        <div class="trip-heading">
+          <div>
+            <input
+              class="title-input"
+              id="tripTitle"
+              aria-label="行程名稱"
+              value="香川旅遊"
+            />
+            <div class="trip-meta">
+              <label>
+                <span aria-hidden="true">⌖</span>
+                <input id="destination" aria-label="目的地" value="日本・香川" />
+              </label>
+              <span class="meta-divider"></span>
+              <label>
+                <span aria-hidden="true">◷</span>
+                <span id="tripLength">3 天</span>
+              </label>
+            </div>
+          </div>
+          <p class="hero-note">直接問 AI 沿路景點與動線，會用 Google Maps 找點並先讓你確認。</p>
+        </div>
+      </section>
+
+      <div class="tabs-shell">
+      <nav class="tabs" aria-label="主要功能">
+        <button class="tab active" data-tab="overview" type="button">
+          總覽
+        </button>
+        <button class="tab" data-tab="schedule" type="button">
+          行程 <span id="scheduleCount">3</span>
+        </button>
+        <button class="tab" data-tab="map" type="button">
+          地圖
+        </button>
+        <button class="tab" data-tab="places" type="button">
+          想去的地方 <span id="placesCount">0</span>
+        </button>
+        <button class="tab" data-tab="shopping" type="button">
+          代購清單 <span id="shoppingCount">0</span>
+        </button>
+        <button class="tab" data-tab="memos" type="button">
+          備忘錄 <span id="memosCount">0</span>
+        </button>
+      </nav>
+      <span class="tabs-scroll-hint" aria-hidden="true">›</span>
+      </div>
+
+      <section class="panel active" id="overviewPanel">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">TRIP AT A GLANCE</p>
+            <h2>整趟行程，一眼掌握</h2>
+          </div>
+        </div>
+        <div class="overview-grid" id="overviewGrid"></div>
+      </section>
+
+      <section class="panel" id="schedulePanel">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">ITINERARY</p>
+            <h2>每天，慢慢玩</h2>
+          </div>
+          <div class="section-actions">
+            <button class="button ai-button" id="openImportButton" type="button">
+              ✦ AI 匯入行程
+            </button>
+            <button class="button button-outline" id="addDayButton" type="button">
+              ＋ 新增一天
+            </button>
+          </div>
+        </div>
+        <div class="schedule-day-sticky">
+          <label class="day-jump" for="dayJumpSelect">
+            <span>快速前往</span>
+            <select id="dayJumpSelect" aria-label="快速選擇第幾天">
+              <option value="">選擇第幾天</option>
+            </select>
+          </label>
+        </div>
+        <div class="days-grid" id="daysGrid"></div>
+        <section class="ai-assistant card" aria-labelledby="aiAssistantTitle">
+          <div class="ai-assistant-heading">
+            <div>
+              <p class="kicker">AI TRIP CHAT</p>
+              <h3 id="aiAssistantTitle">和 AI 一起調整行程</h3>
+              <p>可直接請 AI 用 Google Maps 查沿路景點與動線；修改會先預覽，確認後才同步。</p>
+            </div>
+            <div class="ai-chat-actions">
+              <button class="button button-outline" id="clearAiChatButton" type="button">清除對話</button>
+              <button class="button ai-button" id="reviewTripButton" type="button">✦ 健檢整趟行程</button>
+            </div>
+          </div>
+          <div class="ai-chat-log" id="aiChatLog" aria-live="polite"></div>
+          <form id="aiQuestionForm" class="ai-question-form">
+            <label for="aiQuestion">想和 AI 討論什麼？</label>
+            <div>
+              <textarea id="aiQuestion" rows="3" placeholder="例如：寒霞溪到飯店之間有哪些順路景點？請在 18:00 前回到飯店。"></textarea>
+              <button class="button button-dark" type="submit">送出問題</button>
+            </div>
+            <p class="ai-link-help">沿路找點會查 Google Maps，不必先加入「想去的地方」；每個建議仍會逐項確認。</p>
+          </form>
+          <div class="ai-review-results hidden" id="aiReviewResults" aria-live="polite"></div>
+        </section>
+      </section>
+
+      <section class="panel" id="mapPanel">
+        <div class="section-heading map-heading">
+          <div>
+            <p class="kicker">TRIP MAP</p>
+            <h2>分天查看旅行地圖</h2>
+          </div>
+          <div class="section-actions">
+            <label class="day-jump" for="mapDayFilter">
+              <span>顯示</span>
+              <select id="mapDayFilter" aria-label="地圖日期篩選"></select>
+            </label>
+            <label class="auto-map-toggle" for="autoMapLinksToggle">
+              <input id="autoMapLinksToggle" type="checkbox" />
+              <span>沒貼連結時，自動辨識 Google Maps</span>
+            </label>
+            <button class="button button-outline" id="openMapImportButton" type="button">批次貼上地址</button>
+          </div>
+        </div>
+        <div class="map-location-list" id="mapLocationList"></div>
+        <a class="button button-dark map-route-link hidden" id="mapRouteLink" target="_blank" rel="noopener noreferrer">在 Google Maps 開啟當日路線 ↗</a>
+        <div class="interactive-map-section">
+          <div class="interactive-map-heading">
+            <div>
+              <p class="kicker">INTERACTIVE MAP</p>
+              <h3>互動地圖</h3>
+            </div>
+            <button class="button button-coral" id="generateMapButton" type="button">產生／更新地圖</button>
+          </div>
+          <div class="map-notice" id="mapNotice"></div>
+          <div class="trip-map card" id="tripMap" aria-label="旅程地圖"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="placesPanel">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">PLACES TO GO</p>
+            <h2>先收藏，再安排</h2>
+          </div>
+        </div>
+        <form class="place-form card" id="placeForm">
+          <div class="place-form-heading">
+            <p class="kicker">ADD A PLACE</p>
+            <h3>新增想去的地方</h3>
+            <p>先收藏地點與參考連結，之後再請 AI 幫你安排進行程。</p>
+          </div>
+          <div class="field">
+            <label for="placeName">地點名稱</label>
+            <input id="placeName" required placeholder="例如：根津美術館" />
+          </div>
+          <div class="field">
+            <label for="placeArea">區域</label>
+            <input id="placeArea" placeholder="例如：表參道" />
+          </div>
+          <div class="field field-wide">
+            <label for="placeNote">備註</label>
+            <input id="placeNote" placeholder="想看的展、營業時間或其他想法" />
+          </div>
+          <div class="field field-wide">
+            <label for="placeUrl">連結（選填）</label>
+            <input id="placeUrl" type="url" placeholder="Google 地圖、官網或訂位網址" />
+          </div>
+          <div class="field field-wide">
+            <label for="placeAddress">地址（選填）</label>
+            <input id="placeAddress" placeholder="例如：東京都港區南青山6-5-1" autocomplete="street-address" />
+          </div>
+          <button class="button button-coral place-submit" type="submit">＋ 收藏這個地點</button>
+        </form>
+        <div class="places-list" id="placesList"></div>
+      </section>
+
+      <section class="panel" id="shoppingPanel">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">SHOPPING LIST</p>
+            <h2>這趟幫誰買？</h2>
+          </div>
+        </div>
+        <div class="shopping-layout">
+          <form class="shopping-form card" id="shoppingForm">
+            <div class="field">
+              <label for="buyerName">名字</label>
+              <div class="name-row">
+                <select id="buyerName" aria-label="選擇名字"></select>
+                <button class="icon-button" id="manageNamesButton" type="button" title="管理名字">
+                  ＋
+                </button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="shoppingItem">想買的東西</label>
+              <input id="shoppingItem" required placeholder="例如：藥妝、伴手禮…" />
+            </div>
+            <div class="field">
+              <label for="shoppingNote">備註</label>
+              <input id="shoppingNote" placeholder="數量、顏色、預算" />
+            </div>
+            <button class="button button-coral" type="submit">加入清單</button>
+          </form>
+          <div class="shopping-results">
+            <p class="shopping-summary" id="shoppingSummary" aria-live="polite"></p>
+            <div class="shopping-list card" id="shoppingList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="memosPanel">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">TRIP NOTES</p>
+            <h2>備忘與參考資料</h2>
+          </div>
+        </div>
+        <div class="memo-layout">
+          <form class="memo-form card" id="memoForm">
+            <div class="field">
+              <label for="memoTitle">標題</label>
+              <input id="memoTitle" required placeholder="例如：住宿資訊、餐廳候選" />
+            </div>
+            <div class="field">
+              <label for="memoUrl">連結（選填）</label>
+              <input id="memoUrl" type="url" placeholder="官網、訂位頁面或參考網址" />
+            </div>
+            <div class="field">
+              <label for="memoContent">參考內容</label>
+              <textarea id="memoContent" rows="7" placeholder="地址、電話、注意事項或其他資料"></textarea>
+            </div>
+            <div class="memo-form-actions">
+              <button class="button button-coral" id="saveMemoButton" type="submit">加入備忘錄</button>
+              <button class="button button-outline hidden" id="cancelMemoEditButton" type="button">取消編輯</button>
+            </div>
+          </form>
+          <div class="memo-list" id="memoList"></div>
+        </div>
+      </section>
+      </div>
+    </main>
+
+    <div class="modal-backdrop hidden" id="eventActionsBackdrop">
+      <div class="modal event-actions-modal" role="dialog" aria-modal="true" aria-labelledby="eventActionsTitle" tabindex="-1">
+        <button class="modal-close" id="eventActionsClose" type="button" aria-label="關閉行程操作">×</button>
+        <p class="kicker">ITINERARY OPTIONS</p>
+        <h2 id="eventActionsTitle">行程操作</h2>
+        <p id="eventActionsName" class="modal-note"></p>
+        <div class="event-action-options">
+          <button class="button button-outline" type="button" data-event-delta="-15">提前15分鐘</button>
+          <button class="button button-outline" type="button" data-event-delta="15">延後15分鐘</button>
+          <button class="button button-danger" id="deleteEventAction" type="button">刪除行程</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="modalBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="modal-close" id="modalClose" type="button" aria-label="關閉">×</button>
+        <p class="kicker">YOUR PEOPLE</p>
+        <h2 id="modalTitle">管理名字</h2>
+        <form id="nameForm" class="name-form">
+          <input id="newName" required placeholder="輸入名字" />
+          <button class="button button-dark" type="submit">加入</button>
+        </form>
+        <div id="namesList" class="names-list"></div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="importModalBackdrop">
+      <div class="modal import-modal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+        <button class="modal-close" id="importModalClose" type="button" aria-label="關閉匯入行程">×</button>
+        <p class="kicker">AI IMPORT</p>
+        <h2 id="importModalTitle">把文字整理成行程</h2>
+        <p class="modal-note">可貼上 Google Sheet 網址、試算表儲存格、LINE 訊息或任何行程草稿，AI 會先整理成預覽。</p>
+        <form id="importForm" class="import-form">
+          <label for="importText">Google Sheet 連結、行程文字或表格</label>
+          <textarea id="importText" rows="10" required maxlength="30000" placeholder="https://docs.google.com/spreadsheets/d/試算表ID/edit#gid=0&#10;&#10;或直接貼上：&#10;8/27 12:20 抵達高松機場&#10;14:00 丸龜城"></textarea>
+          <div class="import-example">
+            <strong>Google Sheet 範例</strong>
+            <code>https://docs.google.com/spreadsheets/d/1Abc...XYZ/edit#gid=0</code>
+            <span>所有工作表會一起匯入。試算表需設為「知道連結的任何人可檢視」；私人試算表請改貼儲存格內容。</span>
+          </div>
+          <button class="button button-coral" type="submit">✦ 產生預覽</button>
+        </form>
+        <div class="import-preview hidden" id="importPreview"></div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="editItineraryModalBackdrop">
+      <div
+        class="modal edit-itinerary-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="editItineraryTitle"
+        tabindex="-1"
+      >
+        <button class="modal-close" id="editItineraryModalClose" type="button" aria-label="關閉編輯行程">×</button>
+        <p class="kicker">EDIT ITINERARY</p>
+        <h2 id="editItineraryTitle">編輯行程</h2>
+        <form id="editItineraryForm" class="edit-itinerary-form">
+          <div class="field">
+            <label for="editItemTime">開始時間</label>
+            <div class="time-stepper">
+              <input id="editItemTime" type="time" step="60" />
+              <button type="button" data-time-target="editItemTime" data-delta="-15" aria-label="開始時間提前15分鐘">−15</button>
+              <button type="button" data-time-target="editItemTime" data-delta="15" aria-label="開始時間延後15分鐘">＋15</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="editItemEndTime">結束時間</label>
+            <div class="time-stepper">
+              <input id="editItemEndTime" type="time" step="60" />
+              <button type="button" data-time-target="editItemEndTime" data-delta="-15" aria-label="結束時間提前15分鐘">−15</button>
+              <button type="button" data-time-target="editItemEndTime" data-delta="15" aria-label="結束時間延後15分鐘">＋15</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="editItemTimeLabel">未定時間</label>
+            <select id="editItemTimeLabel">
+              <option value="彈性">彈性</option>
+              <option value="上午">上午</option>
+              <option value="下午">下午</option>
+              <option value="晚上">晚上</option>
+            </select>
+          </div>
+          <div class="field field-wide">
+            <label for="editItemName">項目名稱</label>
+            <input id="editItemName" required />
+          </div>
+          <div class="field">
+            <label for="editItemArea">區域／地點</label>
+            <input id="editItemArea" placeholder="例如：高松、丸龜城" />
+          </div>
+          <div class="field field-wide">
+            <label for="editItemNote">備註</label>
+            <textarea id="editItemNote" rows="4" placeholder="營業時間、訂位資訊、交通方式或其他提醒"></textarea>
+          </div>
+          <div class="field field-wide">
+            <label for="editItemUrl">連結</label>
+            <input id="editItemUrl" type="url" placeholder="Google Maps、官網或訂位網址" />
+          </div>
+          <div class="field field-wide">
+            <label for="editItemAddress">地址</label>
+            <input id="editItemAddress" placeholder="貼上或輸入完整地址" autocomplete="street-address" />
+          </div>
+          <div class="edit-toggle-row field-wide">
+            <label class="lock-field">
+              <input id="editItemIncludeInMap" type="checkbox" />
+              <span>加入地圖與當日路線</span>
+            </label>
+            <label class="lock-field">
+              <input id="editItemLocked" type="checkbox" />
+              <span>鎖定行程（不可拖曳，AI 也不會修改）</span>
+            </label>
+          </div>
+          <div class="modal-actions field-wide">
+            <button class="button button-coral" type="submit">儲存修改</button>
+            <button class="button button-outline" id="cancelEditItineraryButton" type="button">取消</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="mapImportModalBackdrop">
+      <div class="modal map-import-modal" role="dialog" aria-modal="true" aria-labelledby="mapImportTitle">
+        <button class="modal-close" id="mapImportModalClose" type="button" aria-label="關閉地址匯入">×</button>
+        <p class="kicker">BULK LOCATIONS</p>
+        <h2 id="mapImportTitle">批次匯入地址</h2>
+        <p class="modal-note">每行格式：第幾天｜地點名稱｜地址。會先配對既有行程，不會直接新增錯誤地點。</p>
+        <form id="mapImportForm" class="import-form">
+          <textarea id="mapImportText" rows="9" required placeholder="第1天｜丸龜城｜香川県丸亀市一番丁&#10;第2天｜栗林公園｜香川県高松市栗林町1丁目20-16"></textarea>
+          <button class="button button-coral" type="submit">確認匯入地址</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="editShoppingModalBackdrop">
+      <div class="modal edit-shopping-modal" role="dialog" aria-modal="true" aria-labelledby="editShoppingTitle">
+        <button class="modal-close" id="editShoppingModalClose" type="button" aria-label="關閉編輯代購項目">×</button>
+        <p class="kicker">EDIT SHOPPING ITEM</p>
+        <h2 id="editShoppingTitle">編輯代購項目</h2>
+        <form id="editShoppingForm" class="edit-shopping-form">
+          <div class="field">
+            <label for="editShoppingName">名字</label>
+            <select id="editShoppingName" required></select>
+          </div>
+          <div class="field">
+            <label for="editShoppingItem">想買的東西</label>
+            <input id="editShoppingItem" required />
+          </div>
+          <div class="field">
+            <label for="editShoppingNote">備註</label>
+            <input id="editShoppingNote" placeholder="數量、顏色、預算" />
+          </div>
+          <div class="field">
+            <label for="editShoppingStatus">狀態</label>
+            <select id="editShoppingStatus">
+              <option value="pending">待確認</option>
+              <option value="confirmed">已確認</option>
+              <option value="purchased">已購買</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button class="button button-coral" type="submit">儲存修改</button>
+            <button class="button button-outline" id="cancelEditShoppingButton" type="button">取消</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <template id="dayTemplate">
+      <article class="day-card card">
+        <div class="day-top">
+          <div>
+            <span class="day-number"></span>
+            <input class="day-title" aria-label="當日標題" />
+          </div>
+          <button class="more-button delete-day" type="button" aria-label="刪除這天">×</button>
+        </div>
+        <input class="day-date" type="date" aria-label="日期" />
+        <div class="timeline"></div>
+        <form class="quick-add">
+          <div class="quick-add-fields">
+            <div class="quick-add-main">
+              <input
+                class="quick-add-time"
+                type="time"
+                step="60"
+                aria-label="行程時間"
+              />
+              <input class="quick-add-end-time" type="time" step="60" aria-label="行程結束時間" />
+              <input placeholder="新增行程…" aria-label="新增行程" required />
+            </div>
+            <div class="quick-add-extra">
+              <input
+                class="quick-add-note"
+                placeholder="備註（選填）"
+                aria-label="行程備註"
+              />
+              <input
+                class="quick-add-url"
+                type="url"
+                placeholder="貼上連結（選填）"
+                aria-label="行程連結"
+              />
+            </div>
+          </div>
+          <button type="submit" aria-label="加入">＋</button>
+        </form>
+      </article>
+    </template>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
